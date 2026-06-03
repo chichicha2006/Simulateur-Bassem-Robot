@@ -5,8 +5,9 @@ Objectif : détailler toutes les modifications apportées dans le workspace
 pour `mbassem.py` et `maintenance_init_servos.py`, avec numéros de ligne, et
 fournir une explication claire du rôle de `server.py`.
 
+
+---------------------------------------
 1) `maintenance_init_servos.py` 
---------------------------------------------------------
 - `import json` ajouté : ligne 22
 - `import os` ajouté : ligne 23
 - `current_angles` (dict) ajouté : ligne 28
@@ -27,13 +28,15 @@ Modifs dans les fonctions `bougeN` :
   `current_angles["servo_6"] = angle` et appel `save_angles_to_json()`
 
 
+
+---------------------------------------
 2) `mbassem.py` — modification détectée
--------------------------------------
 - Fonction ajoutée : `def move_all(a,b,c,d,e,f)` à la ligne 302.
 
 
-3) `server.py` — rôle et fonctionnement
+
 ---------------------------------------
+3) `server.py` — rôle et fonctionnement
 - Rôle général : serveur websocket qui reçoit des messages JSON depuis Unity
   et transmet les commandes d'angles au simulateur Python et/ou renvoie les
   angles à Unity.
