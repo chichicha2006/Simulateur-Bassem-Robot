@@ -976,3 +976,51 @@ def console():
     root.mainloop()
 
 """
+# ===== MODIFICATIONS AJOUTEES =====
+
+# Ajouts :
+#  - import json
+#  - import os
+#  - variable globale current_angles = {"servo_1":0,...}
+#  - fonction save_angles_to_json(filename="angles.json") qui serialise
+#    current_angles en JSON
+#  - modifications dans les fonctions bouge1..bouge6 :
+#      * ajout de 'global current_angles'
+#      * mise a jour de current_angles["servo_N"] = angle
+#      * appel de save_angles_to_json()
+#
+# Code ajoute original (mis en commentaire ci-dessous) :
+#
+# import json
+# import os
+#
+# current_angles = {"servo_1": 0, "servo_2": 0, "servo_3": 0,
+#                   "servo_4": 0, "servo_5": 0, "servo_6": 0}
+#
+# def save_angles_to_json(filename="angles.json"):
+#     """Sauvegarde les angles actuels dans un fichier JSON"""
+#     global current_angles
+#     try:
+#         with open(filename, 'w') as f:
+#             json.dump(current_angles, f, indent=2)
+#     except Exception as e:
+#         print(f"  Erreur sauvegarde JSON: {e}")
+#
+# # Exemples d'instrumentation dans bouge1..bouge6 (commentes)
+# def bouge1(angle):
+#     global current_angles
+#     print("  l'epaule (servo 1) se place en angle ",angle)
+#     current_angles["servo_1"] = angle
+#     pos  = LIMITS[1][1]-int(RATIO_MX64*angle) - int(RATIO_MX64*18)
+#     bougepos1(pos)
+#     save_angles_to_json()
+#
+# def bouge2(angle):
+#     global current_angles
+#     print("  l'epaule (servo 2) se place en angle ",angle)
+#     current_angles["servo_2"] = angle
+#     pos  = LIMITS[2][1]-int(RATIO_MX64*angle)
+#     bougepos2(pos)
+#     save_angles_to_json()
+#
+# ... (similaire pour bouge3, bouge4, bouge5, bouge6)
