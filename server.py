@@ -2,22 +2,11 @@ import asyncio
 import websockets
 import json
 import os
-from maintenance_init_servos import current_angles
 import mbassem
 
 ANGLE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "angles.json")
 active_websockets = set()  # Piste les websockets actifs pour envoyer les angles
 
-
-def get_current_angles():
-    return [
-        current_angles["servo_1"],
-        current_angles["servo_2"],
-        current_angles["servo_3"],
-        current_angles["servo_4"],
-        current_angles["servo_5"],
-        current_angles["servo_6"],
-    ]
 
 
 def read_angles_json(filename=ANGLE_FILE):
@@ -39,26 +28,6 @@ def read_angles_json(filename=ANGLE_FILE):
         return None
 
 
-def print_slider_change_messages(old_angles, new_angles):
-    labels = [
-        "🦾 l'epaule (servo 1))",
-        "🦾 l'epaule (servo 2)",
-        "🦾 le coude (servo 3)",
-        "🦾 le poignet (servo 4)",
-        "👵 la tete (servo 5)",
-        "👵 la tete (servo 6)",
-    ]
-
-    if old_angles is None:
-        old_angles = [None] * 6
-
-
-    for i in range(6):
-        if old_angles[i] != new_angles[i]:
-            print(f"  {labels[i]} se place en angle  {new_angles[i]}")
-
-
-    return new_angles
 
 # envoi les angles a unity ------------------------------------------------------------------------
 async def broadcast_angles_to_unity(angles):
@@ -79,7 +48,6 @@ async def handler(websocket):
     global active_websockets
     active_websockets.add(websocket)
     print("Unity connecté !")
-
     async for message in websocket:
         try:
             data = json.loads(message)  # récupère depuis Unity via websocket
@@ -97,11 +65,11 @@ async def handler(websocket):
             rightLowerArm = data.get("rightLowerArm", 0)
 
             # exécution commande
-            mbassem.move_all(rightArm, rightArmSide, rightLowerArm, 0, headLF, headUD)
-
+            mbassem.bouge(rightArm, rightArmSide, rightLowerArm, 0, headLF, headUD)
+            print("------------------------------------------------------------------")
         except Exception as e:
             print("Erreur :", e)
-
+        
     # Retirer le websocket fermé
     active_websockets.discard(websocket)
     print("Unity déconnecté !")
@@ -118,7 +86,7 @@ async def poll_angles_file():
             old_angles = new_angles
             continue
         if new_angles != old_angles:
-            old_angles = print_slider_change_messages(old_angles, new_angles)
+            old_angles = new_angles
             # Envoyer les nouveaux angles à Unity
             await broadcast_angles_to_unity(new_angles)
 
@@ -135,4 +103,3 @@ async def main():
 
 
 asyncio.run(main())
-#hola

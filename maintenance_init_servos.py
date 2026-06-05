@@ -20,8 +20,6 @@ import sys
 import io
 import builtins
 import json
-import os
-
 
 
 pm=[0,0,0,0,0,0]
@@ -451,15 +449,16 @@ def hors_limite(id=None):
     else :
         print("  ❗ servo",id,": ","\033[41m\033[97mServo hors limite ! \033[0m")
 
-def save_angles_to_json(filename="angles.json"):
-    """Sauvegarde les angles actuels dans un fichier JSON"""
-    global current_angles
+import os
+
+ANGLE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "angles.json")
+
+def save_angles_to_json(filename=ANGLE_FILE):
     try:
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             json.dump(current_angles, f, indent=2)
     except Exception as e:
         print(f"  ✘ Erreur sauvegarde JSON: {e}")
-
 
 ## bouge
 def bouge(a,b=None,c=None,d=None,e=None,f=None):
@@ -572,14 +571,12 @@ def bougepos6(f):
         
 ### bougex(angle):  ###############################################################################
 def bouge1(angle):
-    global current_angles
     print("  🦾 l'epaule (servo 1)) se place en angle ",angle)
     current_angles["servo_1"] = angle
     pos  = LIMITS[1][1]-int(RATIO_MX64*angle) - int(RATIO_MX64*18)
     bougepos1(pos)
     save_angles_to_json()  
 def bouge2(angle):
-    global current_angles
     print("  🦾 l'epaule (servo 2) se place en angle ",angle)
     current_angles["servo_2"] = angle
     pos  = LIMITS[2][1]-int(RATIO_MX64*angle)
@@ -587,7 +584,6 @@ def bouge2(angle):
     save_angles_to_json()
     
 def bouge3(angle):
-    global current_angles
     print("  🦾 le coude (servo 3) se place en angle ",angle)
     current_angles["servo_3"] = angle
     pos  = LIMITS[3][0]+int(RATIO_AX12*angle)
@@ -595,7 +591,6 @@ def bouge3(angle):
     save_angles_to_json()
       
 def bouge4(angle):
-    global current_angles
     print("  🦾 le poignet (servo 4) se place en angle ",angle)
     current_angles["servo_4"] = angle
     pos  = 512+int(RATIO_AX12*angle)
@@ -603,7 +598,6 @@ def bouge4(angle):
     save_angles_to_json()
     
 def bouge5(angle):
-    global current_angles
     print("  👵 la tete (servo 5) se place en angle ",angle)
     current_angles["servo_5"] = angle
     pos  = (LIMITS[5][0]+LIMITS[5][1])//2 + int(RATIO_AX12*angle) 
@@ -611,7 +605,6 @@ def bouge5(angle):
     save_angles_to_json()
      
 def bouge6(angle):
-    global current_angles
     print("  👵 la tete (servo 6) se place en angle ",angle)
     current_angles["servo_6"] = angle
     pos  = (LIMITS[6][0]+LIMITS[6][1])//2 + int(RATIO_AX12*angle)
@@ -976,51 +969,40 @@ def console():
     root.mainloop()
 
 """
-# ===== MODIFICATIONS AJOUTEES =====
-
+# ===== MODIFICATIONS AJOUTÉES =====
+#
+# Synchronisation des angles avec Unity via angles.json
+#
 # Ajouts :
 #  - import json
 #  - import os
-#  - variable globale current_angles = {"servo_1":0,...}
-#  - fonction save_angles_to_json(filename="angles.json") qui serialise
-#    current_angles en JSON
-#  - modifications dans les fonctions bouge1..bouge6 :
-#      * ajout de 'global current_angles'
-#      * mise a jour de current_angles["servo_N"] = angle
-#      * appel de save_angles_to_json()
+#  - constante ANGLE_FILE pointant vers angles.json
+#  - variable globale current_angles contenant les angles des 6 servos
+#  - fonction save_angles_to_json() pour sauvegarder current_angles
+#    dans angles.json
 #
-# Code ajoute original (mis en commentaire ci-dessous) :
+# Modifications dans les fonctions bouge1() à bouge6() :
+#  - mise à jour de current_angles["servo_N"]
+#  - appel de save_angles_to_json() après chaque mouvement
 #
-# import json
-# import os
+# Objectif :
+#  - lorsqu'un servo est commandé depuis Python
+#    (sliders, scénarios, console, etc.),
+#    les angles sont enregistrés dans angles.json
+#  - server.py surveille ce fichier et envoie automatiquement
+#    les nouveaux angles à Unity via WebSocket
 #
-# current_angles = {"servo_1": 0, "servo_2": 0, "servo_3": 0,
-#                   "servo_4": 0, "servo_5": 0, "servo_6": 0}
+# Architecture :
 #
-# def save_angles_to_json(filename="angles.json"):
-#     """Sauvegarde les angles actuels dans un fichier JSON"""
-#     global current_angles
-#     try:
-#         with open(filename, 'w') as f:
-#             json.dump(current_angles, f, indent=2)
-#     except Exception as e:
-#         print(f"  Erreur sauvegarde JSON: {e}")
+# Python (bouge1..bouge6)
+#          ↓
+#   current_angles
+#          ↓
+#    angles.json
+#          ↓
+#      server.py
+#          ↓
+#      WebSocket
+#          ↓
+#        Unity
 #
-# # Exemples d'instrumentation dans bouge1..bouge6 (commentes)
-# def bouge1(angle):
-#     global current_angles
-#     print("  l'epaule (servo 1) se place en angle ",angle)
-#     current_angles["servo_1"] = angle
-#     pos  = LIMITS[1][1]-int(RATIO_MX64*angle) - int(RATIO_MX64*18)
-#     bougepos1(pos)
-#     save_angles_to_json()
-#
-# def bouge2(angle):
-#     global current_angles
-#     print("  l'epaule (servo 2) se place en angle ",angle)
-#     current_angles["servo_2"] = angle
-#     pos  = LIMITS[2][1]-int(RATIO_MX64*angle)
-#     bougepos2(pos)
-#     save_angles_to_json()
-#
-# ... (similaire pour bouge3, bouge4, bouge5, bouge6)

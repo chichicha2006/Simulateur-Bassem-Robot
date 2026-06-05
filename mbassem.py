@@ -297,19 +297,6 @@ def print_gris(msg):
     
     
 #MODIFICATIONS 
-    
-# ajout perso pour conncter avec server.py 
-def move_all(a,b,c,d,e,f):
-    try:
-        bouge(a,b,c,d,e,f)
-    except Exception as e:
-        print("Erreur move_all :", e)
-    
-# sur le simulateur il n'y a que servos 1 2 et 3 donc on ne peut bouger que 1 bras
-#def move_leftArmSide(angle):
-#def move_leftArm(angle):
-#def move_leftLowerArm(angle):
- 
 # code que j'ai ajouté car sinon je n'avais pas les sliders    
 if __name__ == "__main__":
     graph()
